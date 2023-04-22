@@ -14,4 +14,5 @@ urlpatterns = [
     path('new/', login_required(LocationCreateView.as_view()), name='create'),
     path("view/<str:pk>/", views.view, name = "view"),
     path("generate/", views.generate_password, name = "generate_password"),
+    path('edit/<str:pk>/', login_required(LocationUpdateView.as_view()), name='edit'),
 ]

@@ -20,6 +20,7 @@
             <br/>
             <h1 class = "main-color" style="display:inline;">Notes: </h1><h1 style="display:inline; word-wrap: break-word">{{location.website_notes}}</h1>
         </div>
+
         <div>
             {% if not confirmed%}
                 <form method = "POST">
@@ -28,7 +29,9 @@
 
                     <input type="password" name = "password_field" name="Password">
 
-                    <input type="submit" value="Submit">
+                    <input type="submit"  value="Submit" >
+                    <input type="submit"  value="Edit" name = "edit_password">
+                    <input type="submit"  value="Delete" name = "delete_password" >
                 </form>
             {% endif %}
             <div>

@@ -2,6 +2,8 @@ from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
+from django.urls import reverse_lazy
+from django.views.generic.edit import UpdateView
 from .forms import RegisterForm
 from .models import Location
 from datetime import datetime
@@ -155,23 +157,31 @@ def view(request, pk):
         return redirect("home")
 
     if request.method == "POST":
-        user_password = location.website_password
-        password = request.POST.get("password_field")
-        decrypted = decrypt(password.encode(), user_password)
-        if decrypted is not None:
-            try:
-                decrypted = decrypt(password.encode(), decrypted)
-            except:
-                messages.error(request, "Invalid Password.")
-                return redirect("home")
-            context = {
-                'location': location,
-                'decrypted': decrypted,
-                'confirmed': True,
-            }
-            return render(request, "main/detail_view.html", context)
-        else:
-            messages.error(request, "Incorrect password!")
+        
+        if request.POST.get("edit_password"):
+            return redirect("edit", pk=pk)
+            
+        elif request.POST.get("delete_password"):
+            print("hello")
+            
+        else:        
+            user_password = location.website_password
+            password = request.POST.get("password_field")
+            decrypted = decrypt(password.encode(), user_password)
+            if decrypted is not None:
+                try:
+                    decrypted = decrypt(password.encode(), decrypted)
+                except:
+                    messages.error(request, "Invalid Password.")
+                    return redirect("home")
+                context = {
+                    'location': location,
+                    'decrypted': decrypted,
+                    'confirmed': True,
+                }
+                return render(request, "main/detail_view.html", context)
+            else:
+                messages.error(request, "Incorrect password!")
     
     context = {
         'location': location,
@@ -231,6 +241,48 @@ def generate_password(request):
     
     return render(request, 'main/generate_password.html', {'password_length': 12, 'include_uppercase': False, 'include_lowercase': False, 'include_numbers': False, 'include_special': False})
 
+class LocationUpdateView(UpdateView):
+    template_name = "main/website_edit_form.html"
+    model = Location    
+    fields = [
+        'website_username',
+        'website_password',
+        'website_notes',
+        'master_password',
+    ]
+
+    def form_valid(self, form):
+        if form.is_valid():
+            user = self.request.user
+            form.instance.author = user
+
+            form_master_password = form.cleaned_data.get('master_password')
+
+            # the field titled "master_password" in Location model 
+            user_password = self.request.user.password
+
+            # hashed master password in database 
+            if not check_password(form_master_password, user_password):
+                messages.error(self.request, "Error: Invalid Password.")
+                return redirect("edit", pk=self.object.pk)
+            else: 
+                website_password = form.cleaned_data.get('website_password')
+
+                form.instance.website_password = encrypt(form_master_password.encode(), website_password.encode())
+
+                form.instance.website_password = encrypt(form_master_password.encode(), form.instance.website_password.encode())
+
+                form.instance.master_password = '' # to remove the master password from the database
+
+                messages.success(self.request, "Website details updated.")
+                return super().form_valid(form)  # this will save the form
+        else:
+            messages.error(self.request, "Error")
+            messages.add_message(self.request, messages.ERROR, 'Error')
+            return redirect("edit", pk=self.object.pk)
+
+    def get_success_url(self):
+        return reverse_lazy('view', kwargs={'pk': self.object.pk})
 
 
     

@@ -1,0 +1,30 @@
+{% extends "main/home.html" %}
+{% load static %}
+{% block content %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="div-container">
+      <h1 class="form-title">Update Details</h1>
+      <div class="form-input">
+        <label for="id_website_username">Website Username:</label>
+        <input type="text" name="website_username" id="id_website_username" value="{{ object.website_username }}" maxlength="50" required>
+      </div>
+      <div class="form-input">
+        <label for="id_website_password">Website Password:</label>
+        <input type="password" name="website_password" id="id_website_password" maxlength="50" required>
+      </div>
+      <div class="form-input">
+        <label for="id_website_notes">Website Notes:</label>
+        <input type="text" name="website_notes" id="id_website_notes" value="{{ object.website_notes }}" maxlength="50" required>
+      </div>
+      <div class="form-input">
+        <label for="id_master_password">Master Password:</label>
+        <input type="password" name="master_password" id="id_master_password" maxlength="55" required>
+      </div>
+      <div class="form-button">
+        <button type="submit" class="btn-submit">Update</button>
+        <a href="{% url 'view' object.pk %}" class="btn-cancel">Cancel</a>
+      </div>
+    </div>
+  </form>
+{% endblock content %}
