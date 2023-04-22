@@ -25,11 +25,11 @@
             {% if not confirmed%}
                 <form method = "POST">
                     {% csrf_token %}
-                    <h2 class = "main-color">Provide master password to view {{location}} password:</h2>
+                    <h2 class = "main-color">Provide master password to perform any action:</h2>
 
                     <input type="password" name = "password_field" name="Password">
 
-                    <input type="submit"  value="Submit" >
+                    <input type="submit"  value="View {{location}} Password" >
                     <input type="submit"  value="Edit" name = "edit_password">
                     <input type="submit"  value="Delete" name = "delete_password" >
                 </form>

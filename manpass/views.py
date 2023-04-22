@@ -131,7 +131,7 @@ class LocationCreateView(CreateView):
             # hashed master password in database 
 
             if not check_password(form_master_password, user_password):
-                messages.error(self.request, "Error: Invalid link.")
+                messages.error(self.request, "Error: Invalid Password.")
                 return redirect("create")
             else: 
                 website_password = form.instance.website_password
@@ -157,31 +157,35 @@ def view(request, pk):
         return redirect("home")
 
     if request.method == "POST":
-        
+        user_password = location.website_password
+        password = request.POST.get("password_field")
+        decrypted = decrypt(password.encode(), user_password)
+        if decrypted is not None:
+            try:
+                decrypted = decrypt(password.encode(), decrypted)
+            except:
+                messages.error(request, "Invalid Password.")
+                # reload the page itself
+                return redirect("view", pk=pk)
+        else:
+            messages.error(request, "Incorrect password!")
+            return redirect("view", pk=pk)    
+             
         if request.POST.get("edit_password"):
             return redirect("edit", pk=pk)
             
         elif request.POST.get("delete_password"):
-            print("hello")
+            location.delete()
+            return redirect("home")
             
         else:        
-            user_password = location.website_password
-            password = request.POST.get("password_field")
-            decrypted = decrypt(password.encode(), user_password)
-            if decrypted is not None:
-                try:
-                    decrypted = decrypt(password.encode(), decrypted)
-                except:
-                    messages.error(request, "Invalid Password.")
-                    return redirect("home")
-                context = {
-                    'location': location,
-                    'decrypted': decrypted,
-                    'confirmed': True,
-                }
-                return render(request, "main/detail_view.html", context)
-            else:
-                messages.error(request, "Incorrect password!")
+            context = {
+                'location': location,
+                'decrypted': decrypted,
+                'confirmed': True,
+            }
+            return render(request, "main/detail_view.html", context)
+
     
     context = {
         'location': location,
