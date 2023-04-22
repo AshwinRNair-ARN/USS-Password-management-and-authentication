@@ -145,7 +145,7 @@ class LocationCreateView(CreateView):
             messages.error(self.request, "Error")
             messages.add_message(self.request, messages.ERROR, 'Error')  
 
-
+@login_required
 def view(request, pk):
     user = request.user
     try:
@@ -159,7 +159,11 @@ def view(request, pk):
         password = request.POST.get("password_field")
         decrypted = decrypt(password.encode(), user_password)
         if decrypted is not None:
-            decrypted = decrypt(password.encode(), decrypted)
+            try:
+                decrypted = decrypt(password.encode(), decrypted)
+            except:
+                messages.error(request, "Invalid Password.")
+                return redirect("home")
             context = {
                 'location': location,
                 'decrypted': decrypted,

@@ -38,12 +38,12 @@
             <section>
                 <br/>
                 {% for message in messages %}
-                        <div class="div-container" style="padding: 0px;width: 30%">
-                            <h1>{{message}}</h1>
-                        </div>
-                        <br />
-                        <br />
-                    {% endfor %}
+                    <div class="div-container" style="padding: 0px;width: 30%">
+                        <h1>{{message}}</h1>
+                    </div>
+                    <br />
+                    <br />
+                {% endfor %}
                 {% block content %}
                     {% if location %}
                         {% for row in location %}
