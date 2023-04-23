@@ -19,6 +19,7 @@ import random
 import string
 import pyotp
 import re
+import time
 
 @login_required(login_url="/login") 
 def home(request):
@@ -127,8 +128,8 @@ class LocationCreateView(CreateView):
             form_master_password = form.instance.master_password
             # the field titled "master_password" in Location model 
 
-            user_password = self.request.user.password
-            # hashed master password in database 
+            user_password = self.request.user.password # the users password is stored in the database 
+             
 
             if not check_password(form_master_password, user_password):
                 messages.error(self.request, "Error: Invalid Password.")
@@ -287,6 +288,46 @@ class LocationUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('view', kwargs={'pk': self.object.pk})
+    
+    
+def change_master_secondary( password, user, new_pwd):
+    for i, c in enumerate(Location.objects.filter(author=user)):
+        decrypted = decrypt(password.encode(), c.website_password)
+        decrypted = decrypt(password.encode(), decrypted)
+
+        encrypted = encrypt(new_pwd.encode(), decrypted.encode())
+        encrypted = encrypt(new_pwd.encode(), encrypted.encode())
+        
+        c.website_password = encrypted
+        c.save()
+        
+
+@login_required
+def account(request):
+    if request.method =="POST":
+        master_password = request.user.password
+        post_password = request.POST.get("password_field")
+        if not check_password(post_password, master_password):
+            messages.error(request, "Incorrect Master Password")
+            return render(request, "main/account.html", {'user': request.user})
+
+        else:
+            requested_password = request.POST.get("new_password1")
+            if requested_password != request.POST.get("new_password2"):
+                return render(request, "main/account.html", {'user': request.user})
+
+            user = User.objects.get(username=request.user)
+            user.set_password(requested_password)
+            user.save()
+
+            messages.success(request, f""" Your password was recently changed successfully !""")
+
+            change_master_secondary(post_password, user, requested_password)
+            
+            return redirect('login')
+    print("hello u reached just before the return")
+    return render(request, "main/account.html", {'user': request.user})
+
 
 
     
