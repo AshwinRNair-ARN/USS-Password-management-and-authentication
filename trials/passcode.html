@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Passcode Entry</title>
+  <!-- Include Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+    .passcode-input {
+      width: 50px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Passcode Entry</h1>
+    <form>
+      <div class="form-group">
+        <label for="passcode">Enter your passcode:</label>
+        <div class="form-inline">
+          <input type="text" class="form-control passcode-input" id="passcode1" pattern="[0-9]" maxlength="1" required>
+          <input type="text" class="form-control passcode-input" id="passcode2" pattern="[0-9]" maxlength="1" required>
+          <input type="text" class="form-control passcode-input" id="passcode3" pattern="[0-9]" maxlength="1" required>
+          <input type="text" class="form-control passcode-input" id="passcode4" pattern="[0-9]" maxlength="1" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+
+  <!-- Include Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Move focus to next text box when a digit is entered
+      $('.passcode-input').keyup(function() {
+        if ($(this).val().length == $(this).attr('maxlength')) {
+          $(this).next('.passcode-input').focus();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
