@@ -1,0 +1,165 @@
+{% extends "main/home.html" %}
+{% block title %}
+<title></title>
+<style>
+    .passcode-input {
+      width: 50px;
+      text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <audio id="myAudio"></audio>
+    <div class="container" style="width: 75%; display: inline-block">
+        <h1>Music Authentication System</h1>
+    <p> Pick 4 distinct numbers and choose a sound for each number </p>
+      {% csrf_token %}
+       <h2 class = "main-color">Set Music Auth password</h2>
+    <div class="container" style="display: inline-block">
+    <form method="POST">
+        <div class="form-group" style="display:flex; flex-direction: column">
+            <div style="display: inline-flex; gap: 10px">
+                <input type="text" class="passcode-input" id="code1" onchange="onCodeChange('code1')" pattern="[0-9]" maxlength="1" size="12" required>
+                <select id="dropdown1" onchange="onDropdownChange('dropdown1')" style="width: 300px;">
+<option value="">-- Select an option --</option>
+<option value="bell"> bell </option>
+<option value="chime"> chime </option>
+<option value="distorted"> distorted </option>
+<option value="E6"> E6 </option>
+<option value="guitar-a"> guitar-a </option>
+<option value="little-guy-sings"> little-guy-sings </option>
+<option value="piano"> piano </option>
+<option value="trumpet"> trumpet </option>
+<option value="whistle"> whistle </option>
+</select>
+            </div>
+
+        <br/>
+            <div style="display: inline-flex; gap: 10px">
+                <input type="text"  class="passcode-input" id="code2" onchange="onCodeChange('code2')" pattern="[0-9]" maxlength="1" size="12" required>
+                <select id="dropdown2" onchange="onDropdownChange('dropdown2')" style="width: 300px;">
+<option value="">-- Select an option --</option>
+<option value="bell"> bell </option>
+<option value="chime"> chime </option>
+<option value="distorted"> distorted </option>
+<option value="E6"> E6 </option>
+<option value="guitar-a"> guitar-a </option>
+<option value="little-guy-sings"> little-guy-sings </option>
+<option value="piano"> piano </option>
+<option value="trumpet"> trumpet </option>
+<option value="whistle"> whistle </option>
+</select>
+            </div>
+
+            <br/>
+            <div style="display: inline-flex; gap: 10px">
+                <input type="text" class="passcode-input" id="code3" onchange="onCodeChange('code3')" pattern="[0-9]" maxlength="1" size="12" required>
+                <select id="dropdown3" onchange="onDropdownChange('dropdown3')" style="width: 300px">
+<option value="">-- Select an option --</option>
+<option value="bell"> bell </option>
+<option value="chime"> chime </option>
+<option value="distorted"> distorted </option>
+<option value="E6"> E6 </option>
+<option value="guitar-a"> guitar-a </option>
+<option value="little-guy-sings"> little-guy-sings </option>
+<option value="piano"> piano </option>
+<option value="trumpet"> trumpet </option>
+<option value="whistle"> whistle </option>
+</select>
+            </div>
+
+            <br/>
+            <div style="display: inline-flex; gap: 10px">
+                <input type="text" class="passcode-input" id="code4" onchange="onCodeChange('code4')" pattern="[0-9]" maxlength="1" size="12" required>
+                <select id="dropdown4" onchange="onDropdownChange('dropdown4')" style="width: 300px;">
+<option value="">-- Select an option --</option>
+<option value="bell"> bell </option>
+<option value="chime"> chime </option>
+<option value="distorted"> distorted </option>
+<option value="E6"> E6 </option>
+<option value="guitar-a"> guitar-a </option>
+<option value="little-guy-sings"> little-guy-sings </option>
+<option value="piano"> piano </option>
+<option value="trumpet"> trumpet </option>
+<option value="whistle"> whistle </option>
+</select>
+            </div>
+
+            <br/>
+
+
+        </div>
+
+
+ <!-- Include Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Move focus to next text box when a digit is entered
+      $('.passcode-input').keyup(function() {
+        if ($(this).val().length == $(this).attr('maxlength')) {
+          $(this).next('.passcode-input').focus();
+        }
+      });
+    });
+  </script>
+        <script>
+            var usedCodes = {};
+            function isNumeric(str) {
+                return !isNaN(parseFloat(str)) && isFinite(str);
+            }
+            function onCodeChange(codeId){
+                var code = document.getElementsById(codeId).value;
+                if(code === ''){
+                    for(let key in usedCodes){
+                        if(usedCodes[key] === codeId){
+                            usedCodes[key] = '';
+                        }
+                    }
+                }
+                else if(!isNumeric(code)){
+                    document.getElementById(codeId).value = "";
+                    alert("Code should be a number [0-9]")
+                }
+                else if (code in usedCodes && usedCodes[code] !== codeId && usedCodes[code] !== ''){
+                    document.getElementById(codeId).value = "";
+                    alert("You have already chosen this number")
+                }
+                else {
+                    usedCodes[code] = codeId;
+                }
+
+            }
+        </script>
+            <script>
+		var selectedValues = {};
+		function onDropdownChange(dropdownId) {
+			var selectedValue = document.getElementById(dropdownId).value;
+			if (selectedValue in selectedValues && selectedValues[selectedValue] !== dropdownId) {
+				// Reset the selected option
+				document.getElementById(dropdownId).value = "";
+				alert("This option has already been selected in another dropdown!");
+			} else {
+				selectedValues[selectedValue] = dropdownId;
+                const filepath =  "/static/soundEffects/" + selectedValue + ".mp3";
+                var audio = document.getElementById("myAudio");
+                audio.src = filepath;
+                audio.play();
+			}
+		}
+	</script>
+        <input type="submit" value="Submit">
+
+    </form>
+    </div>
+
+    </div>
+{#       <input style="float: left" id="code1" type="password" pattern="[0-9]" maxlength="1" size="2">#}
+{#       <input style="float: left" id="code1" type="password" pattern="[0-9]" maxlength="1" size="2">#}
+{#       <input style="float: left" id="code1" type="password" pattern="[0-9]" maxlength="1" size="2">#}
+
+
+{% endblock %}
+

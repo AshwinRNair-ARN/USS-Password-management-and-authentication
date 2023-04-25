@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Dynamic Play Button</title>
+    <style>
+      #play-button {
+        background-image: url('play-button.png');
+        width: 50px;
+        height: 50px;
+        cursor: pointer;
+        animation: pulse 2s infinite;
+      }
+
+      #play-button:hover {
+        background-image: url('play-button-hover.png');
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Dynamic Play Button</h1>
+
+    <div id="play-button"></div>
+
+    <audio id="soundtrack" src="soundtrack.mp3"></audio>
+
+    <script>
+      const playButton = document.getElementById('play-button');
+      const soundtrack = document.getElementById('soundtrack');
+
+      playButton.addEventListener('click', () => {
+        if (soundtrack.paused) {
+          soundtrack.play();
+          playButton.style.backgroundImage = "url('pause-button.png')";
+          playButton.classList.remove('pulse');
+        } else {
+          soundtrack.pause();
+          playButton.style.backgroundImage = "url('play-button.png')";
+          playButton.classList.add('pulse');
+        }
+      });
+    </script>
+  </body>
+</html>

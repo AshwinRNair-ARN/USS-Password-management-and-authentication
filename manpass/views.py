@@ -246,6 +246,13 @@ def generate_password(request):
     
     return render(request, 'main/generate_password.html', {'password_length': 12, 'include_uppercase': False, 'include_lowercase': False, 'include_numbers': False, 'include_special': False})
 
+
+
+@login_required
+def music(request):
+    return render(request, 'main/music.html')
+
+
 class LocationUpdateView(UpdateView):
     template_name = "main/website_edit_form.html"
     model = Location    
