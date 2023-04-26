@@ -19,8 +19,10 @@
     <form method="POST">
         {% csrf_token %}
         <div class="form-group" style="display: inline-block">
+            <h2> Input master password: </h2>
+            <input type="password" name = "password_field">
             <div style="display: inline-flex; gap: 10px">
-                <input type="text" class="passcode-input" id="code1" name="code1" onchange="onCodeChange('code1')" pattern="[0-9]" maxlength="1" size="12" required>
+                <input type="text" class="passcode-input" id="code1" name="code1" onchange="onCodeChange('code1')"  maxlength="1" size="12" required>
                 <select id="dropdown1" name="dropdown1" onchange="onDropdownChange('dropdown1')" style="width: 300px;">
 <option value="">-- Select an option --</option>
 <option value="bell"> bell </option>
@@ -37,7 +39,7 @@
 
         <br/>
             <div style="display: inline-flex; gap: 10px">
-                <input type="text"  class="passcode-input" id="code2" name="code2" onchange="onCodeChange('code2')" pattern="[0-9]" maxlength="1" size="12" required>
+                <input type="text"  class="passcode-input" id="code2" name="code2" onchange="onCodeChange('code2')"  maxlength="1" size="12" required>
                 <select id="dropdown2" name="dropdown2" onchange="onDropdownChange('dropdown2')" style="width: 300px;">
 <option value="">-- Select an option --</option>
 <option value="bell"> bell </option>
@@ -54,7 +56,7 @@
 
             <br/>
             <div style="display: inline-flex; gap: 10px">
-                <input type="text" class="passcode-input" id="code3" name="code3" onchange="onCodeChange('code3')" pattern="[0-9]" maxlength="1" size="12" required>
+                <input type="text" class="passcode-input" id="code3" name="code3" onchange="onCodeChange('code3')"  maxlength="1" size="12" required>
                 <select id="dropdown3" name="dropdown3" onchange="onDropdownChange('dropdown3')" style="width: 300px">
 <option value="">-- Select an option --</option>
 <option value="bell"> bell </option>
@@ -71,7 +73,7 @@
 
             <br/>
 {#            <div style="display: inline-flex; gap: 10px">#}
-{#                <input type="text" class="passcode-input" id="code4" onchange="onCodeChange('code4')" pattern="[0-9]" maxlength="1" size="12" required>#}
+{#                <input type="text" class="passcode-input" id="code4" onchange="onCodeChange('code4')"  maxlength="1" size="12" required>#}
 {#                <select id="dropdown4" onchange="onDropdownChange('dropdown4')" style="width: 300px;">#}
 {#<option value="">-- Select an option --</option>#}
 {#<option value="bell"> bell </option>#}
@@ -169,9 +171,9 @@
     </div>
 
     </div>
-{#       <input style="float: left" id="code1" type="password" pattern="[0-9]" maxlength="1" size="2">#}
-{#       <input style="float: left" id="code1" type="password" pattern="[0-9]" maxlength="1" size="2">#}
-{#       <input style="float: left" id="code1" type="password" pattern="[0-9]" maxlength="1" size="2">#}
+{#       <input style="float: left" id="code1" type="password"  maxlength="1" size="2">#}
+{#       <input style="float: left" id="code1" type="password"  maxlength="1" size="2">#}
+{#       <input style="float: left" id="code1" type="password"  maxlength="1" size="2">#}
 
 
 {% endblock %}

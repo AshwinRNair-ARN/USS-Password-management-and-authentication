@@ -18,7 +18,9 @@ from .encryption import *
 import random
 import string
 import pyotp
+import random
 import re
+import json
 import time
 
 @login_required(login_url="/login") 
@@ -336,6 +338,11 @@ def account(request):
 @login_required
 def music(request):
     if request.method == 'POST':
+        master_password = request.user.password
+        post_password = request.POST.get("password_field")
+        if not check_password(post_password, master_password):
+            messages.error(request, "Incorrect Master Password")
+            return render(request, "main/home.html")
         codes = [request.POST.get(f'code{i}') for i in range(1, 4)]
         sounds = [request.POST.get(f'dropdown{i}') for i in range(1, 4)]
         print(codes)
@@ -349,6 +356,9 @@ def music(request):
             return render(request, 'main/music.html')
 
         for code in codes:
+            if len(code) > 1:
+                messages.error(request, 'code should be of length 1')
+                return render(request, 'main/music.html')
             if codes.count(code) > 1:
                 messages.error(request, "codes should not repeat")
                 return render(request, 'main/music.html')
@@ -377,8 +387,51 @@ def music(request):
         new_object.refresh_from_db()
 
         messages.success(request, "Your music auth has been updated!")
+        request.session['music'] = True
 
     return render(request, 'main/music.html')
+
+
+@login_required
+def verify(request):
+    if request.method == 'POST':
+        codes = [request.POST.get(f'code{i}') for i in range(1, 4)]
+        print(codes)
+        context = json.loads(request.POST.get('context_data'))
+        print(context)
+        f1, f2, f3 = context['f1'], context['f2'], context['f3']
+        obj = Music.objects.get(author=request.user)
+        sound_to_code = dict()
+        sound_to_code[obj.file1] = obj.code1
+        sound_to_code[obj.file2] = obj.code2
+        sound_to_code[obj.file3] = obj.code3
+
+        real_codes = [sound_to_code[f1], sound_to_code[f2], sound_to_code[f3]]
+        print(real_codes)
+        # sanitize the input if its correct
+        if codes.count('') > 0:
+            messages.error(request, "code value cannot be empty!")
+            return render(request, 'main/verify.html', {'context_data': json.dumps(context, ensure_ascii=False)})
+        for i in range(3):
+            if str(real_codes[i]) != codes[i]:
+                messages.error(request, "Invalid code entered")
+                return render(request, "main/verify.html", {'context_data': json.dumps(context, ensure_ascii=False)})
+        # successful, redirect to some page:
+        return render(request, "main/home.html")
+
+
+    obj = Music.objects.get(author=request.user)
+    # sounds = [(obj.file1, obj.code1), (obj.file2, obj.code2), (obj.file3, obj.code3)]
+    sounds = [obj.file1, obj.file2, obj.file3]
+    random.shuffle(sounds)
+    context = {
+        'f1': sounds[0],
+        'f2': sounds[1],
+        'f3': sounds[2]
+    }
+    context_json = json.dumps(context, ensure_ascii=False)
+    print(context_json)
+    return render(request, 'main/verify.html', {'context_data': context_json})
 
 
 

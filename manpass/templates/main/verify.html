@@ -1,0 +1,60 @@
+{% extends "main/home.html" %}
+{% block title %}
+{% endblock %}
+
+
+{% block content %}
+    <audio id="myAudio"></audio>
+        <div class="container" style="display: inline-block">
+        <h1> Music Authentication</h1>
+            <br/>
+            <p> A sound will be played, Enter code according to the order of tunes </p>
+            <br/>
+            <br/>
+        <button type="button" id='play' class="btn btn-outline-danger" onclick="playAudio()">Play</button>
+            <br/>
+        <br/>
+        </div>
+        <div class="container">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+        <label for="passcode">Enter passcode:</label>
+                    <br/>
+        <div class="form-inline">
+          <input type="password" class="form-control passcode-input" id="passcode1" name="code1"  maxlength="1" size="2" required>
+          <input type="password" class="form-control passcode-input" id="passcode2" name="code2"  maxlength="1" size="2" required>
+          <input type="password" class="form-control passcode-input" id="passcode3" name="code3"  maxlength="1" size="2" required>
+            <input type="hidden" name="context_data" value="{{ context_data }}">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+
+    <script>
+     var context = JSON.parse('{{ context_data|escapejs }}');
+     audio = document.getElementById('myAudio');
+    const f1 = context['f1'];
+    const f2 = context['f2'];
+    const f3 = context['f3'];
+    console.log(f1);
+    console.log(f2);
+    console.log(f3);
+    var sources = [f1, f2, f3];
+    var index = 0;
+
+    function playAudio() {
+      if (index < sources.length) {
+        audio.src = "/static/soundEffects/" + sources[index] + ".mp3";
+        audio.play();
+        index++;
+        audio.addEventListener('ended', playAudio);
+      }
+      else
+          index=0;
+    }
+
+
+    </script>
+{% endblock %}
