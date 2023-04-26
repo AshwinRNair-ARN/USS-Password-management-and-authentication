@@ -5,7 +5,7 @@ from django.contrib.auth.hashers import make_password
 from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView
 from .forms import RegisterForm
-from .models import Location
+from .models import Location, Music
 from datetime import datetime
 from django.core.mail import send_mail
 from django.http import  HttpResponse
@@ -250,6 +250,36 @@ def generate_password(request):
 
 @login_required
 def music(request):
+    if request.method == 'POST':
+        codes = [request.POST.get(f'code{i}') for i in range(1, 4)]
+        sounds = [request.POST.get(f'dropdown{i}') for i in range(1, 4)]
+        # sanitize the input if its correct
+        for code in codes:
+            if codes.count(code) > 1:
+                messages.error(request, "codes should not repeat")
+                return render(request, 'main/music.html')
+
+        for sound in sounds:
+            if sounds.count(sound) > 1:
+                messages.error(request, "sounds should not repeat")
+                return render(request, 'main/music.html')
+
+        # save in DB
+        new_object = Music()
+        new_object.file1 = sounds[0]
+        new_object.file2 = sounds[1]
+        new_object.file3 = sounds[2]
+        new_object.code1 = codes[0]
+        new_object.code2 = codes[1]
+        new_object.code3 = codes[2]
+        new_object.author = request.user
+
+        new_object.refresh_from_db()
+
+        messages.success(request, "Your music auth has been updated!")
+
+
+
     return render(request, 'main/music.html')
 
 

@@ -22,3 +22,17 @@ class Location(models.Model):
     def get_absolute_url(self):
         return reverse("home") 
     
+
+class Music(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    file1 = models.CharField(max_length=100)
+    file2 = models.CharField(max_length=100)
+    file3 = models.CharField(max_length=100)
+    code1 = models.IntegerField()
+    code2 = models.IntegerField()
+    code3 = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.file1} {self.file2} {self.file3} {self.code1} {self.code2} {self.code3}"
+

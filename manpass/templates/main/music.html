@@ -11,14 +11,14 @@
 
 {% block content %}
     <audio id="myAudio"></audio>
-    <div class="container" style="width: 75%; display: inline-block">
+    <div class="container" style="width: 40%; display: inline-block">
         <h1>Music Authentication System</h1>
-    <p> Pick 4 distinct numbers and choose a sound for each number </p>
+    <p> Pick 3 distinct numbers and choose a sound for each number </p>
       {% csrf_token %}
        <h2 class = "main-color">Set Music Auth password</h2>
     <div class="container" style="display: inline-block">
     <form method="POST">
-        <div class="form-group" style="display:flex; flex-direction: column">
+        <div class="form-group" style="display: inline-block">
             <div style="display: inline-flex; gap: 10px">
                 <input type="text" class="passcode-input" id="code1" onchange="onCodeChange('code1')" pattern="[0-9]" maxlength="1" size="12" required>
                 <select id="dropdown1" onchange="onDropdownChange('dropdown1')" style="width: 300px;">
@@ -70,21 +70,21 @@
             </div>
 
             <br/>
-            <div style="display: inline-flex; gap: 10px">
-                <input type="text" class="passcode-input" id="code4" onchange="onCodeChange('code4')" pattern="[0-9]" maxlength="1" size="12" required>
-                <select id="dropdown4" onchange="onDropdownChange('dropdown4')" style="width: 300px;">
-<option value="">-- Select an option --</option>
-<option value="bell"> bell </option>
-<option value="chime"> chime </option>
-<option value="distorted"> distorted </option>
-<option value="E6"> E6 </option>
-<option value="guitar-a"> guitar-a </option>
-<option value="little-guy-sings"> little-guy-sings </option>
-<option value="piano"> piano </option>
-<option value="trumpet"> trumpet </option>
-<option value="whistle"> whistle </option>
-</select>
-            </div>
+{#            <div style="display: inline-flex; gap: 10px">#}
+{#                <input type="text" class="passcode-input" id="code4" onchange="onCodeChange('code4')" pattern="[0-9]" maxlength="1" size="12" required>#}
+{#                <select id="dropdown4" onchange="onDropdownChange('dropdown4')" style="width: 300px;">#}
+{#<option value="">-- Select an option --</option>#}
+{#<option value="bell"> bell </option>#}
+{#<option value="chime"> chime </option>#}
+{#<option value="distorted"> distorted </option>#}
+{#<option value="E6"> E6 </option>#}
+{#<option value="guitar-a"> guitar-a </option>#}
+{#<option value="little-guy-sings"> little-guy-sings </option>#}
+{#<option value="piano"> piano </option>#}
+{#<option value="trumpet"> trumpet </option>#}
+{#<option value="whistle"> whistle </option>#}
+{#</select>#}
+{#            </div>#}
 
             <br/>
 
@@ -115,7 +115,8 @@
                 if(code === ''){
                     for(let key in usedCodes){
                         if(usedCodes[key] === codeId){
-                            usedCodes[key] = '';
+                            delete usedCodes[key];
+                            break;
                         }
                     }
                 }
@@ -123,11 +124,17 @@
                     document.getElementById(codeId).value = "";
                     alert("Code should be a number [0-9]")
                 }
-                else if (code in usedCodes && usedCodes[code] !== codeId && usedCodes[code] !== ''){
+                else if (code in usedCodes && usedCodes[code] !== codeId){
                     document.getElementById(codeId).value = "";
                     alert("You have already chosen this number")
                 }
                 else {
+                    for(let key in usedCodes){
+                        if(usedCodes[key] === codeId){
+                            delete usedCodes[key];
+                            break;
+                        }
+                    }
                     usedCodes[code] = codeId;
                 }
 
@@ -142,6 +149,12 @@
 				document.getElementById(dropdownId).value = "";
 				alert("This option has already been selected in another dropdown!");
 			} else {
+                for(let key in selectedValues){
+                    if(selectedValues[key] === dropdownId){
+                        delete selectedValues[key];
+                        break;
+                    }
+                }
 				selectedValues[selectedValue] = dropdownId;
                 const filepath =  "/static/soundEffects/" + selectedValue + ".mp3";
                 var audio = document.getElementById("myAudio");
