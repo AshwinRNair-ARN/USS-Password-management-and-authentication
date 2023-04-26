@@ -14,14 +14,14 @@
     <div class="container" style="width: 40%; display: inline-block">
         <h1>Music Authentication System</h1>
     <p> Pick 3 distinct numbers and choose a sound for each number </p>
-      {% csrf_token %}
        <h2 class = "main-color">Set Music Auth password</h2>
     <div class="container" style="display: inline-block">
     <form method="POST">
+        {% csrf_token %}
         <div class="form-group" style="display: inline-block">
             <div style="display: inline-flex; gap: 10px">
-                <input type="text" class="passcode-input" id="code1" onchange="onCodeChange('code1')" pattern="[0-9]" maxlength="1" size="12" required>
-                <select id="dropdown1" onchange="onDropdownChange('dropdown1')" style="width: 300px;">
+                <input type="text" class="passcode-input" id="code1" name="code1" onchange="onCodeChange('code1')" pattern="[0-9]" maxlength="1" size="12" required>
+                <select id="dropdown1" name="dropdown1" onchange="onDropdownChange('dropdown1')" style="width: 300px;">
 <option value="">-- Select an option --</option>
 <option value="bell"> bell </option>
 <option value="chime"> chime </option>
@@ -37,8 +37,8 @@
 
         <br/>
             <div style="display: inline-flex; gap: 10px">
-                <input type="text"  class="passcode-input" id="code2" onchange="onCodeChange('code2')" pattern="[0-9]" maxlength="1" size="12" required>
-                <select id="dropdown2" onchange="onDropdownChange('dropdown2')" style="width: 300px;">
+                <input type="text"  class="passcode-input" id="code2" name="code2" onchange="onCodeChange('code2')" pattern="[0-9]" maxlength="1" size="12" required>
+                <select id="dropdown2" name="dropdown2" onchange="onDropdownChange('dropdown2')" style="width: 300px;">
 <option value="">-- Select an option --</option>
 <option value="bell"> bell </option>
 <option value="chime"> chime </option>
@@ -54,8 +54,8 @@
 
             <br/>
             <div style="display: inline-flex; gap: 10px">
-                <input type="text" class="passcode-input" id="code3" onchange="onCodeChange('code3')" pattern="[0-9]" maxlength="1" size="12" required>
-                <select id="dropdown3" onchange="onDropdownChange('dropdown3')" style="width: 300px">
+                <input type="text" class="passcode-input" id="code3" name="code3" onchange="onCodeChange('code3')" pattern="[0-9]" maxlength="1" size="12" required>
+                <select id="dropdown3" name="dropdown3" onchange="onDropdownChange('dropdown3')" style="width: 300px">
 <option value="">-- Select an option --</option>
 <option value="bell"> bell </option>
 <option value="chime"> chime </option>
