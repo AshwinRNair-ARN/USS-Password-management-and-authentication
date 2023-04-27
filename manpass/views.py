@@ -347,6 +347,11 @@ def share(request):
     
     if(request.method == 'POST'):
         username = request.POST.get('username')
+        if request.user.get_username().lower() == username.lower():
+            messages.error(request, "Cannot send to yourself")
+            del request.session['location_id']
+            return redirect('home')
+
         print(username)
         print(type(request.POST.get('start_sharing')))
         if(request.POST.get('start_sharing') == '1'):

@@ -19,39 +19,7 @@
     </div>
   </div>
 
-  <div class="row justify-content-center mt-5">
-    <div class="col-md-6">
-      {% if shared_by_other_users %}
-      <h2>Passwords shared with you</h2>
-      {% for password in shared_by_other_users %}
-      <div class="card mb-3">
-        <div class="card-header">{{ password.0 }}</div>
-        <div class="card-body">
-          <h5 class="card-title">{{ password.1 }}</h5>
-          <p class="card-text">{{ password.2 }}</p>
-        </div>
-      </div>
-      {% endfor %}
-      {% endif %}
-    </div>
-  </div>
-  <div class="row justify-content-center mt-5">
-    <div class="col-md-6">
-      {% if shared_with_other_users %}
-      <h2>Passwords shared by you</h2>
-      {% for password in shared_with_other_users %}
-      <div class="card mb-3">
-        <div class="card-header">{{ password.0 }}</div>
-        <div class="card-body">
-          <h5 class="card-title">{{ password.1 }}</h5>
-          <p class="card-text">{{ password.2 }}</p>
-        </div>
-      </div>
-      {% endfor %}
-      {% endif %}
-    </div>
-  </div>
-</div>
+
 {% endblock %}
 
 {% block scripts %}
