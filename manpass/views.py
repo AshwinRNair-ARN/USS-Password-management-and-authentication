@@ -132,7 +132,6 @@ class LocationCreateView(CreateView):
 
             user_password = self.request.user.password # the users password is stored in the database 
              
-
             if not check_password(form_master_password, user_password):
                 messages.error(self.request, "Error: Invalid Password.")
                 return redirect("create")
@@ -212,27 +211,18 @@ def view(request, pk):
         messages.error(request, "Invalid link.")
         return redirect("home")
 
-    if request.method == "POST":
-        user_password = location.website_password
-        password = request.POST.get("password_field")
-        decrypted = decrypt(password.encode(), user_password)
-        if decrypted is not None:
-            try:
-                decrypted = decrypt(password.encode(), decrypted)
-            except:
-                messages.error(request, "Invalid Password.")
-                # reload the page itself
-                return redirect("view", pk=pk)
-        else:
-            messages.error(request, "Incorrect password!")
-            return redirect("view", pk=pk)    
-             
+    if request.method == "POST": 
         if request.POST.get("edit_password"):
-            return redirect("edit", pk=pk)
+            # return redirect("edit", pk=pk)
+            request.session["website_location_id"] = pk
+            request.session["edit_password"] = True
+            return redirect("verify")
             
         elif request.POST.get("delete_password"):
-            location.delete()
-            return redirect("home")
+            # location.delete()
+            request.session["website_location_id"] = pk
+            request.session["delete_password"] = True
+            return redirect("verify")
         
         elif request.POST.get("share_password"):
             request.session["location_id"] = pk
@@ -261,9 +251,24 @@ class LocationUpdateView(UpdateView):
         'website_notes',
         'master_password',
     ]
+    
+    def dispatch(self, request, *args, **kwargs):
+        if request.session.get("success") == True:
+            success = True
+            del request.session["success"]
+        else:
+            success = False
+            return redirect("home")
+        print("i reached here 0")
+        response = super().dispatch(request, *args, **kwargs)
+        if success:
+            response.context_data["success"] = True
+        print("i reached here 0.5")
+        return response
 
     def form_valid(self, form):
         if form.is_valid():
+            print("i reached here")
             user = self.request.user
             form.instance.author = user
 
@@ -274,9 +279,11 @@ class LocationUpdateView(UpdateView):
 
             # hashed master password in database 
             if not check_password(form_master_password, user_password):
+                print("i reached here 2")
                 messages.error(self.request, "Error: Invalid Password.")
-                return redirect("edit", pk=self.object.pk)
+                return redirect("home")
             else: 
+                print("i reached here 3")
                 website_password = form.cleaned_data.get('website_password')
 
                 form.instance.website_password = encrypt(form_master_password.encode(), website_password.encode())
@@ -288,13 +295,20 @@ class LocationUpdateView(UpdateView):
                 messages.success(self.request, "Website details updated.")
                 return super().form_valid(form)  # this will save the form
         else:
+            print("i reached here 4")
             messages.error(self.request, "Error")
             messages.add_message(self.request, messages.ERROR, 'Error')
-            return redirect("edit", pk=self.object.pk)
+            return redirect("home")
 
-    def get_success_url(self):
-        return reverse_lazy('view', kwargs={'pk': self.object.pk})
+    def form_invalid(self, form):
+        errors = form.errors
+        print(errors)
+        messages.error(self.request, "Form is invalid. Please correct the errors and try again.")
+        return super().form_invalid(form)
     
+    def get_success_url(self):
+        print("i reached here 5")
+        return reverse_lazy('view', kwargs={'pk': self.object.pk})
     
 def change_master_secondary( password, user, new_pwd):
     for i, c in enumerate(Location.objects.filter(author=user)):
@@ -307,7 +321,6 @@ def change_master_secondary( password, user, new_pwd):
         c.website_password = encrypted
         c.save()
         
-
 @login_required
 def account(request):
     if request.method =="POST":
@@ -561,20 +574,41 @@ def verify(request):
                 messages.error(request, "Invalid code entered")
                 return render(request, "main/verify.html", {'context_data': json.dumps(context, ensure_ascii=False)})
         # successful, redirect to some page:
-        return render(request, "main/home.html")
+        request.session["verified"] = True
+        #if edit_password key is  present in session, then go to edit page
+        if request.session.get('edit_password'):
+            del request.session['edit_password']
+            request.session["success"] = True
+            return redirect("edit", pk=request.session["website_location_id"])
+        
+        elif request.session.get('delete_password'):
+            del request.session['delete_password']
+            try:
+                location = Location.objects.get(id= request.session.get('website_location_id'), author=request.user)
+                location.delete()
+                messages.success(request, "Location deleted successfully.")
+                return redirect("home")
+            except Location.DoesNotExist:
+                messages.error(request, "Invalid link.")
+                return redirect("home")
+        return redirect("home")
+    
 
-
-    obj = Music.objects.get(author=request.user)
-    # sounds = [(obj.file1, obj.code1), (obj.file2, obj.code2), (obj.file3, obj.code3)]
-    sounds = [obj.file1, obj.file2, obj.file3]
-    random.shuffle(sounds)
-    context = {
-        'f1': sounds[0],
-        'f2': sounds[1],
-        'f3': sounds[2]
-    }
-    context_json = json.dumps(context, ensure_ascii=False)
-    print(context_json)
-    return render(request, 'main/verify.html', {'context_data': context_json})
+    elif request.method == 'GET':
+        #if edit_password key is not present in session, redirect to home
+        if not request.session.get('delete_password'):
+            return redirect('home')
+        obj = Music.objects.get(author=request.user)
+        # sounds = [(obj.file1, obj.code1), (obj.file2, obj.code2), (obj.file3, obj.code3)]
+        sounds = [obj.file1, obj.file2, obj.file3]
+        random.shuffle(sounds)
+        context = {
+            'f1': sounds[0],
+            'f2': sounds[1],
+            'f3': sounds[2]
+        }
+        context_json = json.dumps(context, ensure_ascii=False)
+        print(context_json)
+        return render(request, 'main/verify.html', {'context_data': context_json})
 
     
