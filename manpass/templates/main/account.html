@@ -12,7 +12,7 @@
         <br />
         <div class = "div-container" style = "box-shadow:none">
             <h1 class = "main-color" style="display:inline; position: relative;text-align: left">Account Created on: </h1><h1 style="display:inline; word-wrap: break-word">{{user.date_joined | date:"F y, Y"}}</h1>
-        </div class = "div-container">
+        </div>
         <br />
         <br />
         <div class = "div-container" style = "box-shadow:none">
@@ -25,7 +25,7 @@
         </div>
         <br />
         <br />
-        <div class="div-container" style="box-shadow: none; width=50%">
+        <div class="div-container" style="box-shadow: none; width: 50%">
             <form method = "POST">
                 {% csrf_token %}   
                 <h2 class = "main-color">Change Master Password</h2>
@@ -44,7 +44,11 @@
         </div>
         <br />
         <br />
-        <br /> 
+        <br />
+        <a href="/music/">
+    <button class="btn btn-outline-primary">Music Authentication </button>
+        </a>
+
     </div>
 
 {%endblock content%}
