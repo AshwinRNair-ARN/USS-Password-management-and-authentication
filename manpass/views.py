@@ -370,8 +370,9 @@ def share(request):
                 obj.save()
                 print("created new obj")
                 messages.success(request, "Password shared successfully")
+                return redirect('viewShare')
             del request.session['location_id']
-            return redirect('home')
+
             
         elif(request.POST.get('stop_sharing') == '1'):
             try:
@@ -415,7 +416,33 @@ def share(request):
         return render(request, 'main/share.html',context )
         
             
-        
+@login_required
+def viewShare(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    owner = request.user
+    if (request.method == 'GET'):
+        objs = SharedPassword.objects.filter(receiver=owner)
+        shared_by_other_users = []
+        # returns a list of users who have shared their passwords with you along with the password name and website name
+        for obj in objs:
+            shared_by_other_users.append((obj.owner.username, obj.location.website_name, obj.location.website_password))
+        print(shared_by_other_users)
+
+        shared_with_other_users = []
+        for obj in SharedPassword.objects.filter(owner=owner):
+            shared_with_other_users.append(
+                (obj.receiver.username, obj.location.website_name, obj.location.website_password))
+        print(shared_with_other_users)
+
+        context = {
+            'shared_by_other_users': shared_by_other_users,
+            'shared_with_other_users': shared_with_other_users,
+        }
+        return render(request, 'main/viewShare.html', context)
+
+
 def music_register(request):
     if request.user.is_authenticated:
         return HttpResponse("<h1>Error</h1><p>Bad Requestttt</p>")
