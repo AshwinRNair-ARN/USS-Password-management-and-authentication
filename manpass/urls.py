@@ -20,6 +20,7 @@ urlpatterns = [
     path('share',view=views.share, name="share"),
     path('music/', views.music, name="music"),
     path('verify/', views.verify, name="verify"),
+    path('musicReg', views.music_register, name="musicReg")
     
     
     

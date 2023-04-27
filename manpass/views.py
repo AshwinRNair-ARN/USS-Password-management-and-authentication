@@ -100,9 +100,9 @@ def otp(request):
         sec = diff.total_seconds()
         if (request.POST['otp'] == one_time_password) and (sec < 120):
             #login(request, user)
-            user.is_active = True
-            user.save()
-            return HttpResponse("<h1>Success</h1><p>OTP verified successfully. </p> <p> Click <a href='\home'>here</a> to go to home page.</p>")
+            request.session['music_user_id'] = user.id
+            return redirect("musicReg")
+
         else:
             # delete the user and profile from the database
             user.delete()
@@ -416,7 +416,67 @@ def share(request):
         
             
         
-    
+def music_register(request):
+    if request.user.is_authenticated:
+        return HttpResponse("<h1>Error</h1><p>Bad Requestttt</p>")
+
+    if "music_user_id" not in request.session.keys():
+        return HttpResponse("<h1>Error</h1><p>Bad Requestttt</p>")
+
+
+    if request.method == 'POST':
+        user = User.objects.get(id=request.session['music_user_id'])
+        del request.session['music_user_id']
+        codes = [request.POST.get(f'code{i}') for i in range(1, 4)]
+        sounds = [request.POST.get(f'dropdown{i}') for i in range(1, 4)]
+        print(codes)
+        # sanitize the input if its correct
+        if codes.count('') > 0:
+            messages.error(request, "code value cannot be empty!")
+            return render(request, 'main/musicReg.html')
+
+        if sounds.count('') > 0:
+            messages.error(request, 'sound value cannot be empty')
+            return render(request, 'main/musicReg.html')
+
+        for code in codes:
+            if len(code) > 1:
+                messages.error(request, 'code should be of length 1')
+                return render(request, 'main/musicReg.html')
+            if codes.count(code) > 1:
+                messages.error(request, "codes should not repeat")
+                return render(request, 'main/musicReg.html')
+
+        for sound in sounds:
+            if sounds.count(sound) > 1:
+                messages.error(request, "sounds should not repeat")
+                return render(request, 'main/musicReg.html')
+
+        # save in DB
+        new_object = Music.objects.filter(author=user)
+        if not new_object.exists():
+            new_object = Music()
+        else:
+            new_object = Music.objects.get(author=user)
+
+        new_object.file1 = sounds[0]
+        new_object.file2 = sounds[1]
+        new_object.file3 = sounds[2]
+        new_object.code1 = codes[0]
+        new_object.code2 = codes[1]
+        new_object.code3 = codes[2]
+        new_object.author = user
+
+        new_object.save()
+        new_object.refresh_from_db()
+
+        # messages.success(request, "Music auth done")
+        user.is_active = True
+        user.save()
+
+        return redirect('login')
+
+    return render(request, 'main/musicReg.html')
     
 
 @login_required
