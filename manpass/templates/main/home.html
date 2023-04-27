@@ -56,58 +56,58 @@
   }
 }
 
- {#body {#}
- {#     background-color: #f5f5f5;#}
- {#     color: #333;#}
- {#     transition: background-color 0.3s ease, color 0.3s ease;#}
- {#     position: relative; /* Add position relative to body */#}
- {#     min-height: 100vh; /* Set body height to full viewport height */#}
- {#   }#}
- {##}
- {#   body.dark-mode {#}
- {#     background-color: #333;#}
- {#     color: #f5f5f5;#}
- {#   }#}
- {##}
- {#   #darkModeToggleWrapper {#}
- {#     position: absolute; /* Add position absolute to wrapper */#}
- {#     bottom: 0; /* Position at the bottom */#}
- {#     left: 0; /* Position at the left */#}
- {#     padding: 1rem; /* Add some padding */#}
- {#     background-color: rgba(255, 255, 255, 0.8); /* Add a semi-transparent background */#}
- {#   }#}
+ body {
+      background-color: #f5f5f5;
+      color: #333;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      position: relative; /* Add position relative to body */
+      min-height: 100vh; /* Set body height to full viewport height */
+    }
 
-body{
-        padding:10% 3% 10% 3%;
-        text-align:center;
-        }
-        img{
-            height:140px;
-                width:140px;
-        }
-        h1{
-        color: #32a852;
-        }
-        .mode {
-            float:right;
-        }
-        .change {
-            cursor: pointer;
-            border: 1px solid #555;
-            border-radius: 40%;
-            width: 20px;
-            text-align: center;
-            padding: 5px;
-            margin-left: 8px;
-        }
-        .dark{
-            background-color: #222;
-            color: #e6e6e6;
-        }
-            .passcode-input {
-             width: 50px;
-            text-align: center;
-            }
+    body.dark-mode {
+      background-color: #333;
+      color: #f5f5f5;
+    }
+
+    #darkModeToggleWrapper {
+      position: absolute; /* Add position absolute to wrapper */
+      bottom: 0; /* Position at the bottom */
+      left: 0; /* Position at the left */
+      padding: 1rem; /* Add some padding */
+      background-color: rgba(255, 255, 255, 0.8); /* Add a semi-transparent background */
+    }
+
+{#body{#}
+{#        padding:10% 3% 10% 3%;#}
+{#        text-align:center;#}
+{#        }#}
+{#        img{#}
+{#            height:140px;#}
+{#                width:140px;#}
+{#        }#}
+{#        h1{#}
+{#        color: #32a852;#}
+{#        }#}
+{#        .mode {#}
+{#            float:right;#}
+{#        }#}
+{#        .change {#}
+{#            cursor: pointer;#}
+{#            border: 1px solid #555;#}
+{#            border-radius: 40%;#}
+{#            width: 20px;#}
+{#            text-align: center;#}
+{#            padding: 5px;#}
+{#            margin-left: 8px;#}
+{#        }#}
+{#        .dark{#}
+{#            background-color: #222;#}
+{#            color: #e6e6e6;#}
+{#        }#}
+{#            .passcode-input {#}
+{#             width: 50px;#}
+{#            text-align: center;#}
+{#            }#}
         </style>
         <meta name="description" content="secure password manager.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
