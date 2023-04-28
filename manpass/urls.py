@@ -13,7 +13,6 @@ urlpatterns = [
     path('otp', views.otp, name='otp'),
     path("generate/", views.generate_password, name = "generate_password"),
     path('new/', login_required(LocationCreateView.as_view()), name='create'),
-    path('edit/<str:pk>/', login_required(LocationUpdateView.as_view()), name='edit'),
     path('logout/', auth_views.LogoutView.as_view(template_name='main/logout.html'), name="logout" ),
     path("view/<str:pk>/", views.view, name = "view"),
     path('account', views.account, name="account"),

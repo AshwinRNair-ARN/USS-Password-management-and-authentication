@@ -150,3 +150,5 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'fcs.group23@gmail.com'
 EMAIL_HOST_PASSWORD = 'fheqdrjgeonxjyic'
+
+SECRET_HERE = "k3~s9^*0;ko?(n\!8I7+@hv.n"

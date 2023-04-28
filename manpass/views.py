@@ -138,9 +138,9 @@ class LocationCreateView(CreateView):
             else: 
                 website_password = form.instance.website_password
 
-                form.instance.website_password = encrypt(form_master_password.encode(), website_password.encode())
+                form.instance.website_password = encrypt(settings.SECRET_HERE.encode(), website_password.encode())
 
-                form.instance.website_password = encrypt(form_master_password.encode(), form.instance.website_password.encode())
+                form.instance.website_password = encrypt(settings.SECRET_HERE.encode(), form.instance.website_password.encode())
 
                 form.instance.master_password = '' # to remove the master password from the database
                 
@@ -211,7 +211,9 @@ def view(request, pk):
         messages.error(request, "Invalid link.")
         return redirect("home")
 
-    if request.method == "POST": 
+    if request.method == "POST":
+        decrypted = decrypt(settings.SECRET_HERE.encode(), location.website_password) 
+        decrypted = decrypt(settings.SECRET_HERE.encode(), decrypted)
         if request.POST.get("edit_password"):
             # return redirect("edit", pk=pk)
             request.session["website_location_id"] = pk
@@ -226,100 +228,27 @@ def view(request, pk):
         
         elif request.POST.get("share_password"):
             request.session["location_id"] = pk
+            request.session["share_password"] = True
             return redirect("share")
+            # return redirect("verify")
             
         else:        
-            context = {
-                'location': location,
-                'decrypted': decrypted,
-                'confirmed': True,
-            }
-            return render(request, "main/detail_view.html", context)
+            # context = {
+            #     'location': location,
+            #     'decrypted': decrypted,
+            #     'confirmed': True,
+            ## return render(request, "main/detail_view.html", context)
+            request.session["view_password"] = True
+            request.session["website_location_id"] = pk
+            request.session["decrypted"] = decrypted
+            request.session["confirmed"] = True
+            return redirect("verify")
 
     
     context = {
         'location': location,
     }
     return render(request, "main/detail_view.html", context)
-
-class LocationUpdateView(UpdateView):
-    template_name = "main/website_edit_form.html"
-    model = Location    
-    fields = [
-        'website_username',
-        'website_password',
-        'website_notes',
-        'master_password',
-    ]
-    
-    def dispatch(self, request, *args, **kwargs):
-        if request.session.get("success") == True:
-            success = True
-            del request.session["success"]
-        else:
-            success = False
-            return redirect("home")
-        print("i reached here 0")
-        response = super().dispatch(request, *args, **kwargs)
-        if success:
-            response.context_data["success"] = True
-        print("i reached here 0.5")
-        return response
-
-    def form_valid(self, form):
-        if form.is_valid():
-            print("i reached here")
-            user = self.request.user
-            form.instance.author = user
-
-            form_master_password = form.cleaned_data.get('master_password')
-
-            # the field titled "master_password" in Location model 
-            user_password = self.request.user.password
-
-            # hashed master password in database 
-            if not check_password(form_master_password, user_password):
-                print("i reached here 2")
-                messages.error(self.request, "Error: Invalid Password.")
-                return redirect("home")
-            else: 
-                print("i reached here 3")
-                website_password = form.cleaned_data.get('website_password')
-
-                form.instance.website_password = encrypt(form_master_password.encode(), website_password.encode())
-
-                form.instance.website_password = encrypt(form_master_password.encode(), form.instance.website_password.encode())
-
-                form.instance.master_password = '' # to remove the master password from the database
-
-                messages.success(self.request, "Website details updated.")
-                return super().form_valid(form)  # this will save the form
-        else:
-            print("i reached here 4")
-            messages.error(self.request, "Error")
-            messages.add_message(self.request, messages.ERROR, 'Error')
-            return redirect("home")
-
-    def form_invalid(self, form):
-        errors = form.errors
-        print(errors)
-        messages.error(self.request, "Form is invalid. Please correct the errors and try again.")
-        return super().form_invalid(form)
-    
-    def get_success_url(self):
-        print("i reached here 5")
-        return reverse_lazy('view', kwargs={'pk': self.object.pk})
-    
-def change_master_secondary( password, user, new_pwd):
-    for i, c in enumerate(Location.objects.filter(author=user)):
-        decrypted = decrypt(password.encode(), c.website_password)
-        decrypted = decrypt(password.encode(), decrypted)
-
-        encrypted = encrypt(new_pwd.encode(), decrypted.encode())
-        encrypted = encrypt(new_pwd.encode(), encrypted.encode())
-        
-        c.website_password = encrypted
-        c.save()
         
 @login_required
 def account(request):
@@ -327,9 +256,8 @@ def account(request):
         master_password = request.user.password
         post_password = request.POST.get("password_field")
         if not check_password(post_password, master_password):
-            messages.error(request, "Incorrect Master Password")
-            return render(request, "main/account.html", {'user': request.user})
-
+            messages.error(request, "Incorrect Master Password was entered at Profile Page")
+            return redirect("logout")
         else:
             requested_password = request.POST.get("new_password1")
             if requested_password != request.POST.get("new_password2"):
@@ -341,7 +269,8 @@ def account(request):
 
             messages.success(request, f""" Your password was recently changed successfully !""")
 
-            change_master_secondary(post_password, user, requested_password)
+            user.password = make_password(requested_password)
+            user.save()
             
             return redirect('login')
 
@@ -349,22 +278,22 @@ def account(request):
 
 @login_required
 def share(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    if 'location_id' not in request.session.keys():
-        return redirect('home')
-    
-    location_id = request.session['location_id']
-    location = Location.objects.get(pk=location_id)
-    owner = request.user
-    
+
     if(request.method == 'POST'):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        if 'location_id' not in request.session.keys():
+            messages.error(request, "You have not selected a password to share OR Invalid entry")
+            return redirect('home')
+        location_id = request.session.get('location_id')
+        location = Location.objects.get(pk=location_id)
+        owner = request.user
         username = request.POST.get('username')
         print(username)
         print(type(request.POST.get('start_sharing')))
         if(request.POST.get('start_sharing') == '1'):
             try:
-                receiver = User.objects.get( username=username)
+                receiver = User.objects.get( username=username) # get_or_create returns a tuple
                 print("found user")
             except:
                 messages.error(request, "User does not exist")
@@ -375,16 +304,19 @@ def share(request):
         
             objs = SharedPassword.objects.filter(owner = owner, location=location, receiver = receiver) # get_or_create returns a tuple 
             if (objs.exists()):
-                messages.error(request, "You have already shared this password with this user")
+                messages.error(request, "You have already shared this password with the username provided")
                 del request.session['location_id']
                 return redirect('home')
+            
             else:
-                obj = SharedPassword.objects.create(owner = owner, location=location, receiver = receiver)
-                obj.save()
-                print("created new obj")
-                messages.success(request, "Password shared successfully")
-            del request.session['location_id']
-            return redirect('home')
+                # obj = SharedPassword.objects.create(owner = owner, location=location, receiver = receiver)
+                # obj.save()
+                # print("created new obj")
+                # messages.success(request, "Password shared successfully")
+                request.session['receiver'] = username
+                request.session['start_sharing'] = True
+                return redirect('verify')
+            
             
         elif(request.POST.get('stop_sharing') == '1'):
             try:
@@ -397,35 +329,30 @@ def share(request):
             objs = SharedPassword.objects.filter(owner = owner, location=location, receiver = receiver)
             
             if(objs.exists()):
-                objs.delete()
-                messages.success(request, "Password sharing stopped successfully")
+                # objs.delete()
                 print("deleted obj")
+                request.session['receiver'] = username
+                request.session['stop_sharing'] = True
+                return redirect('verify')
                 
             else:
                 messages.error(request, "You have not shared your website password with this user")
                 print("obj doesnt exist")
-                
-            del request.session['location_id']
-            return redirect('home')
+                del request.session['location_id']
+                return redirect('home')
+            
      
     if (request.method == 'GET'):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        #if success is not present in request.session.keys, then redirect to home
+        if 'location_id' not in request.session.keys():
+            messages.error(request, "You have not selected a password to share OR Invalid entry")
+            return redirect('home')
+        owner = request.user
         objs =  SharedPassword.objects.filter(receiver = owner)
-        shared_by_other_users = [] 
-        # returns a list of users who have shared their passwords with you along with the password name and website name
-        for obj in objs:
-            shared_by_other_users.append((obj.owner.username, obj.location.website_name, obj.location.website_password))
-        print(shared_by_other_users)
         
-        shared_with_other_users = []
-        for obj in SharedPassword.objects.filter(owner = owner):
-            shared_with_other_users.append((obj.receiver.username, obj.location.website_name, obj.location.website_password))
-        print(shared_with_other_users)
-        
-        context = {
-            'shared_by_other_users': shared_by_other_users,
-            'shared_with_other_users': shared_with_other_users,
-        }
-        return render(request, 'main/share.html',context )
+        return render(request, 'main/share.html')
         
             
         
@@ -498,8 +425,8 @@ def music(request):
         master_password = request.user.password
         post_password = request.POST.get("password_field")
         if not check_password(post_password, master_password):
-            messages.error(request, "Incorrect Master Password")
-            return render(request, "main/home.html")
+            messages.error(request, "Incorrect Master Password was entered at Music Authentication")
+            return redirect("logout")
         codes = [request.POST.get(f'code{i}') for i in range(1, 4)]
         sounds = [request.POST.get(f'dropdown{i}') for i in range(1, 4)]
         print(codes)
@@ -544,7 +471,7 @@ def music(request):
         new_object.refresh_from_db()
 
         messages.success(request, "Your music auth has been updated!")
-        request.session['music'] = True
+        return redirect('home')
 
     return render(request, 'main/music.html')
 
@@ -567,12 +494,14 @@ def verify(request):
         print(real_codes)
         # sanitize the input if its correct
         if codes.count('') > 0:
+            #suff
             messages.error(request, "code value cannot be empty!")
             return render(request, 'main/verify.html', {'context_data': json.dumps(context, ensure_ascii=False)})
         for i in range(3):
             if str(real_codes[i]) != codes[i]:
+                #suff
                 messages.error(request, "Invalid code entered")
-                return render(request, "main/verify.html", {'context_data': json.dumps(context, ensure_ascii=False)})
+                return redirect ('verify')
         # successful, redirect to some page:
         request.session["verified"] = True
         #if edit_password key is  present in session, then go to edit page
@@ -591,24 +520,75 @@ def verify(request):
             except Location.DoesNotExist:
                 messages.error(request, "Invalid link.")
                 return redirect("home")
+            
+        elif request.session.get('view_password'):
+            del request.session['view_password']
+            location = Location.objects.get(id= request.session.get('website_location_id'), author=request.user)
+            args = {
+                'location': location,
+                'decrypted': request.session.get('decrypted'),
+                'confirmed': request.session.get('confirmed')
+            }
+            del request.session['website_location_id']
+            del request.session['decrypted']
+            del request.session['confirmed']
+            return render(request, "main/detail_view.html", args)
+
+        elif request.session.get('share_password'):
+            del request.session['share_password']
+            #if start_sharing is present in session.keys then share the password
+            
+            if("start_sharing" in request.session.keys()):
+                del request.session['start_sharing']
+                owner = request.user
+                location = Location.objects.get(pk = request.session.get('location_id'))
+                receiver = User.objects.get( username=request.session.get('receiver'))
+                obj = SharedPassword.objects.create(owner=owner, location=location, receiver=receiver)
+                obj.save()
+                del[request.session['location_id']]
+                del[request.session['receiver']]
+                messages.success(request, "Password shared successfully.")
+                return redirect("home")
+            
+            elif("stop_sharing" in request.session.keys()):
+                del request.session['stop_sharing']
+                owner = request.user
+                location = Location.objects.get(pk = request.session.get('location_id'))
+                receiver = User.objects.get( username=request.session.get('receiver'))
+                obj = SharedPassword.objects.get(owner=owner, location=location, receiver=receiver)
+                obj.delete()
+                del[request.session['location_id']]
+                del[request.session['receiver']]
+                messages.success(request, "Password unshared successfully.")
+                return redirect("home")
+            
+            else:
+                messages.error(request, "Invalid entry.")
+                return redirect("home")
+            # context = {
+            #     'location': location,
+            #     'decrypted': decrypted,
+            #     'confirmed': True,
+            ## return render(request, "main/detail_view.html", context)
+
         return redirect("home")
     
-
-    elif request.method == 'GET':
-        #if edit_password key is not present in session, redirect to home
-        if not request.session.get('delete_password'):
-            return redirect('home')
-        obj = Music.objects.get(author=request.user)
-        # sounds = [(obj.file1, obj.code1), (obj.file2, obj.code2), (obj.file3, obj.code3)]
-        sounds = [obj.file1, obj.file2, obj.file3]
-        random.shuffle(sounds)
-        context = {
-            'f1': sounds[0],
-            'f2': sounds[1],
-            'f3': sounds[2]
-        }
-        context_json = json.dumps(context, ensure_ascii=False)
-        print(context_json)
-        return render(request, 'main/verify.html', {'context_data': context_json})
+    #if delete_password or view_password key is not present in session, redirect to home
+    if not request.session.get('delete_password') and not request.session.get('view_password') and not request.session.get('share_password'):
+        messages.error(request, "Invalid link.")
+        return redirect("home")
+    obj = Music.objects.get(author=request.user)
+    # sounds = [(obj.file1, obj.code1), (obj.file2, obj.code2), (obj.file3, obj.code3)]
+    sounds = [obj.file1, obj.file2, obj.file3]
+    random.shuffle(sounds)
+    print("SHUFFLE IS ", sounds)
+    context = {
+        'f1': sounds[0],
+        'f2': sounds[1],
+        'f3': sounds[2]
+    }
+    context_json = json.dumps(context, ensure_ascii=False)
+    print(context_json)
+    return render(request, 'main/verify.html', {'context_data': context_json})
 
     
