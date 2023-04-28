@@ -97,74 +97,9 @@
  <!-- Include Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-  <script>
-    $(document).ready(function() {
-      // Move focus to next text box when a digit is entered
-      $('.passcode-input').keyup(function() {
-        if ($(this).val().length == $(this).attr('maxlength')) {
-          $(this).next('.passcode-input').focus();
-        }
-      });
-    });
-  </script>
-        <script>
-            var usedCodes = {};
-            function isNumeric(str) {
-                return !isNaN(parseFloat(str)) && isFinite(str);
-            }
-            function onCodeChange(codeId){
-                var code = document.getElementsById(codeId).value;
-                if(code === ''){
-                    for(let key in usedCodes){
-                        if(usedCodes[key] === codeId){
-                            delete usedCodes[key];
-                            break;
-                        }
-                    }
-                }
-                else if(!isNumeric(code)){
-                    document.getElementById(codeId).value = "";
-                    alert("Code should be a number [0-9]")
-                }
-                else if (code in usedCodes && usedCodes[code] !== codeId){
-                    document.getElementById(codeId).value = "";
-                    alert("You have already chosen this number")
-                }
-                else {
-                    for(let key in usedCodes){
-                        if(usedCodes[key] === codeId){
-                            delete usedCodes[key];
-                            break;
-                        }
-                    }
-                    usedCodes[code] = codeId;
-                }
-
-            }
-        </script>
-            <script>
-		var selectedValues = {};
-		function onDropdownChange(dropdownId) {
-			var selectedValue = document.getElementById(dropdownId).value;
-			if (selectedValue in selectedValues && selectedValues[selectedValue] !== dropdownId) {
-				// Reset the selected option
-				document.getElementById(dropdownId).value = "";
-				alert("This option has already been selected in another dropdown!");
-			} else {
-                for(let key in selectedValues){
-                    if(selectedValues[key] === dropdownId){
-                        delete selectedValues[key];
-                        break;
-                    }
-                }
-				selectedValues[selectedValue] = dropdownId;
-                const filepath =  "/static/soundEffects/" + selectedValue + ".mp3";
-                var audio = document.getElementById("myAudio");
-                audio.src = filepath;
-                audio.play();
-			}
-		}
-	</script>
+  <script src="/static/JS/music/move.php"></script>
+        <script src="/static/JS/music/validCode.js"></script>
+            <script src="/static/JS/music/validDropdown.js"></script>
         <input type="submit" value="Submit">
 
     </form>
