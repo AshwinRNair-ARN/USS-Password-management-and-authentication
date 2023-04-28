@@ -15,20 +15,23 @@
             <br/>
         <br/>
         </div>
-        <div class="container">
+        <div class="container" style="display: inline-block">
             <form method="POST">
                 {% csrf_token %}
-                <div class="form-group">
-        <label for="passcode">Enter passcode:</label>
+                <div class="form-group" style="display: inline-block">
                     <br/>
-        <div class="form-inline">
+        <label for="passcode">Enter passcode:</label>
+                    <br/><br/>
+        <div class="form-inline" style="display: inline-flex">
           <input type="password" class="form-control passcode-input" id="passcode1" name="code1"  maxlength="1" size="2" required>
           <input type="password" class="form-control passcode-input" id="passcode2" name="code2"  maxlength="1" size="2" required>
           <input type="password" class="form-control passcode-input" id="passcode3" name="code3"  maxlength="1" size="2" required>
             <input type="hidden" name="context_data" value="{{ context_data }}">
         </div>
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
+                <br/>
+                <br/>
+                <button type="submit" class="btn btn-primary">Verify</button>
             </form>
         </div>
 

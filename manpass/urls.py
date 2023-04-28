@@ -17,8 +17,9 @@ urlpatterns = [
     path("view/<str:pk>/", views.view, name = "view"),
     path('account', views.account, name="account"),
     path('share',view=views.share, name="share"),
+    path('viewShare', view=views.viewShare, name="viewShare"),
     path('music', views.music, name="music"),
-    path('verify', views.verify, name="verify"),
+    path('verify/', views.verify, name="verify"),
     path('musicReg', views.music_register, name="musicReg")
     
     
