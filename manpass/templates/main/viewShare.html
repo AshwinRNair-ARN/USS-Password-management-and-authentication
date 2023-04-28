@@ -6,12 +6,13 @@
       <h2>Passwords shared with you</h2>
       {% for password in shared_by_other_users %}
       <div class="card mb-3">
-        <div class="card-header">{{ password.0 }}</div>
+        <div class="card-header">Username: {{ password.0 }}</div>
         <div class="card-body">
-          <h5 class="card-title">{{ password.1 }}</h5>
-          <p class="card-text">{{ password.2 }}</p>
+          <h5 class="card-title">Website Name: {{ password.1 }}</h5>
+          <p class="card-text">Password: {{ password.2 }}</p>
         </div>
       </div>
+    
       {% endfor %}
       {% endif %}
     </div>
@@ -22,10 +23,10 @@
       <h2>Passwords shared by you</h2>
       {% for password in shared_with_other_users %}
       <div class="card mb-3">
-        <div class="card-header">{{ password.0 }}</div>
+        <div class="card-header">Username: {{ password.0 }}</div>
         <div class="card-body">
-          <h5 class="card-title">{{ password.1 }}</h5>
-          <p class="card-text">{{ password.2 }}</p>
+          <h5 class="card-title">Website Name: {{ password.1 }}</h5>
+          <p class="card-text">Password:{{ password.2 }}</p>
         </div>
       </div>
       {% endfor %}

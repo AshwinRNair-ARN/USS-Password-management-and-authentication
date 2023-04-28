@@ -366,13 +366,16 @@ def viewShare(request):
         shared_by_other_users = []
         # returns a list of users who have shared their passwords with you along with the password name and website name
         for obj in objs:
-            shared_by_other_users.append((obj.owner.username, obj.location.website_name, obj.location.website_password))
+            decrypted = decrypt(settings.SECRET_HERE.encode(), obj.location.website_password) 
+            decrypted = decrypt(settings.SECRET_HERE.encode(), decrypted)
+            shared_by_other_users.append((obj.owner.username, obj.location.website_name, decrypted))
         print(shared_by_other_users)
 
         shared_with_other_users = []
         for obj in SharedPassword.objects.filter(owner=owner):
-            shared_with_other_users.append(
-                (obj.receiver.username, obj.location.website_name, obj.location.website_password))
+            decrypted = decrypt(settings.SECRET_HERE.encode(), obj.location.website_password) 
+            decrypted = decrypt(settings.SECRET_HERE.encode(), decrypted)
+            shared_with_other_users.append((obj.receiver.username, obj.location.website_name, decrypted))
         print(shared_with_other_users)
 
         context = {
