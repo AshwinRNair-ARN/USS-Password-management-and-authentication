@@ -5,6 +5,7 @@
 
 {% block content %}
     <audio id="myAudio"></audio>
+    <div id="myDiv" data-context="{{ context_data|escape }}"></div>
         <div class="container" style="display: inline-block">
         <h1> Music Authentication</h1>
             <br/>
@@ -35,5 +36,6 @@
             </form>
         </div>
 
-    <script src="/static/JS/verify/validate.js"></script>
+     <script src="/static/JS/verify/validate.js"></script>
+
 {% endblock %}

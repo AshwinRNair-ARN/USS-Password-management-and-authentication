@@ -1,5 +1,6 @@
-var context = JSON.parse('{{ context_data|escapejs }}');
-     audio = document.getElementById('myAudio');
+    var contextData = document.getElementById('myDiv').getAttribute('data-context');
+    var context = JSON.parse(contextData);
+    audio = document.getElementById('myAudio');
     const f1 = context['f1'];
     const f2 = context['f2'];
     const f3 = context['f3'];
