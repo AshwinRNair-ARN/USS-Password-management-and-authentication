@@ -518,7 +518,7 @@ def music(request):
         post_password = request.POST.get("password_field")
         if not check_password(post_password, master_password):
             messages.error(request, "Incorrect Master Password")
-            return render(request, "main/home.html")
+            return redirect('music')
         codes = [request.POST.get(f'code{i}') for i in range(1, 4)]
         sounds = [request.POST.get(f'dropdown{i}') for i in range(1, 4)]
         print(codes)
@@ -564,6 +564,7 @@ def music(request):
 
         messages.success(request, "Your music auth has been updated!")
         request.session['music'] = True
+        return redirect('music')
 
     return render(request, 'main/music.html')
 
@@ -591,10 +592,9 @@ def verify(request):
         for i in range(3):
             if str(real_codes[i]) != codes[i]:
                 messages.error(request, "Invalid code entered")
-                return render(request, "main/verify.html", {'context_data': json.dumps(context, ensure_ascii=False)})
+                return redirect('verify')
         # successful, redirect to some page:
-        return render(request, "main/home.html")
-
+        return redirect("home")
 
     obj = Music.objects.get(author=request.user)
     # sounds = [(obj.file1, obj.code1), (obj.file2, obj.code2), (obj.file3, obj.code3)]
