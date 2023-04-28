@@ -68,7 +68,7 @@ def sign_up(request):
             request.session["x_value"] = x.isoformat()
             return redirect("/otp")      
         else:
-            print(user_form.errors)
+            # print(user_form.errors)
 
     else:
         user_form = RegisterForm()
@@ -291,15 +291,15 @@ def share(request):
             del request.session['location_id']
             return redirect('home')
 
-        print(username)
-        print(type(request.POST.get('start_sharing')))
+        # print(username)
+        # print(type(request.POST.get('start_sharing')))
         if(request.POST.get('start_sharing') == '1'):
             try:
                 receiver = User.objects.get( username=username) # get_or_create returns a tuple
-                print("found user")
+                # print("found user")
             except:
                 messages.error(request, "User does not exist")
-                print("user doesnt exist")
+                # print("user doesnt exist")
                 #remove location_id from session
                 del request.session['location_id']
                 return redirect('home')
@@ -332,14 +332,14 @@ def share(request):
             
             if(objs.exists()):
                 # objs.delete()
-                print("deleted obj")
+                # print("deleted obj")
                 request.session['receiver'] = username
                 request.session['stop_sharing'] = True
                 return redirect('verify')
                 
             else:
                 messages.error(request, "You have not shared your website password with this user")
-                print("obj doesnt exist")
+                # print("obj doesnt exist")
                 del request.session['location_id']
                 return redirect('home')
             
@@ -371,14 +371,12 @@ def viewShare(request):
             decrypted = decrypt(settings.SECRET_HERE.encode(), obj.location.website_password) 
             decrypted = decrypt(settings.SECRET_HERE.encode(), decrypted)
             shared_by_other_users.append((obj.owner.username, obj.location.website_name, decrypted))
-        print(shared_by_other_users)
+        # print(shared_by_other_users)
 
         shared_with_other_users = []
         for obj in SharedPassword.objects.filter(owner=owner):
-            decrypted = decrypt(settings.SECRET_HERE.encode(), obj.location.website_password) 
-            decrypted = decrypt(settings.SECRET_HERE.encode(), decrypted)
-            shared_with_other_users.append((obj.receiver.username, obj.location.website_name, decrypted))
-        print(shared_with_other_users)
+            shared_with_other_users.append((obj.receiver.username, obj.location.website_name))
+        # print(shared_with_other_users)
 
         context = {
             'shared_by_other_users': shared_by_other_users,
@@ -400,7 +398,7 @@ def music_register(request):
         del request.session['music_user_id']
         codes = [request.POST.get(f'code{i}') for i in range(1, 4)]
         sounds = [request.POST.get(f'dropdown{i}') for i in range(1, 4)]
-        print(codes)
+        # print(codes)
         # sanitize the input if its correct
         if codes.count('') > 0:
             messages.error(request, "code value cannot be empty!")
@@ -460,7 +458,7 @@ def music(request):
             return redirect("logout")
         codes = [request.POST.get(f'code{i}') for i in range(1, 4)]
         sounds = [request.POST.get(f'dropdown{i}') for i in range(1, 4)]
-        print(codes)
+        # print(codes)
         # sanitize the input if its correct
         if codes.count('') > 0:
             messages.error(request, "code value cannot be empty!")
@@ -516,9 +514,9 @@ def verify(request):
         else:
             del request.session['csrf_token']
         codes = [request.POST.get(f'code{i}') for i in range(1, 4)]
-        print(codes)
+        # print(codes)
         context = json.loads(request.POST.get('context_data'))
-        print(context)
+        # print(context)
         f1, f2, f3 = context['f1'], context['f2'], context['f3']
         obj = Music.objects.get(author=request.user)
         sound_to_code = dict()
@@ -527,7 +525,7 @@ def verify(request):
         sound_to_code[obj.file3] = obj.code3
 
         real_codes = [sound_to_code[f1], sound_to_code[f2], sound_to_code[f3]]
-        print(real_codes)
+        # print(real_codes)
         # sanitize the input if its correct
         if codes.count('') > 0:
             #suff
@@ -615,14 +613,14 @@ def verify(request):
         # sounds = [(obj.file1, obj.code1), (obj.file2, obj.code2), (obj.file3, obj.code3)]
         sounds = [obj.file1, obj.file2, obj.file3]
         random.shuffle(sounds)
-        print("SHUFFLE IS ", sounds)
+        # print("SHUFFLE IS ", sounds)
         context = {
             'f1': sounds[0],
             'f2': sounds[1],
             'f3': sounds[2]
         }
         context_json = json.dumps(context, ensure_ascii=False)
-        print(context_json)
+        # print(context_json)
         return render(request, 'main/verify.html', {'context_data': context_json, 'csrf_token': csrf_token})
     
     else:
