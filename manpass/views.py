@@ -214,13 +214,8 @@ def view(request, pk):
     if request.method == "POST":
         decrypted = decrypt(settings.SECRET_HERE.encode(), location.website_password) 
         decrypted = decrypt(settings.SECRET_HERE.encode(), decrypted)
-        if request.POST.get("edit_password"):
-            # return redirect("edit", pk=pk)
-            request.session["website_location_id"] = pk
-            request.session["edit_password"] = True
-            return redirect("verify")
             
-        elif request.POST.get("delete_password"):
+        if request.POST.get("delete_password"):
             # location.delete()
             request.session["website_location_id"] = pk
             request.session["delete_password"] = True
@@ -536,12 +531,8 @@ def verify(request):
         # successful, redirect to some page:
         request.session["verified"] = True
         #if edit_password key is  present in session, then go to edit page
-        if request.session.get('edit_password'):
-            del request.session['edit_password']
-            request.session["success"] = True
-            return redirect("edit", pk=request.session["website_location_id"])
         
-        elif request.session.get('delete_password'):
+        if request.session.get('delete_password'):
             del request.session['delete_password']
             try:
                 location = Location.objects.get(id= request.session.get('website_location_id'), author=request.user)
