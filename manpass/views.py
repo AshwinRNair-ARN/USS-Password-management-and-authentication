@@ -22,6 +22,8 @@ import random
 import re
 import json
 import time
+from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
 @login_required(login_url="/login") 
 def home(request):
@@ -508,6 +510,11 @@ def music(request):
 @login_required
 def verify(request):
     if request.method == 'POST':
+        csrf_token = request.session.get('csrf_token', None)
+        if csrf_token != request.POST.get('csrfmiddlewaretoken'):
+            return HttpResponseBadRequest('Invalid CSRF token')
+        else:
+            del request.session['csrf_token']
         codes = [request.POST.get(f'code{i}') for i in range(1, 4)]
         print(codes)
         context = json.loads(request.POST.get('context_data'))
@@ -598,22 +605,28 @@ def verify(request):
 
         return redirect("home")
     
-    #if delete_password or view_password key is not present in session, redirect to home
-    if not request.session.get('delete_password') and not request.session.get('view_password') and not request.session.get('share_password'):
-        messages.error(request, "Invalid link.")
+    elif(request.method == 'GET'):
+        if not request.session.get('delete_password') and not request.session.get('view_password') and not request.session.get('share_password'):
+            messages.error(request, "Invalid link.")
+            return redirect("home")
+        csrf_token = get_token(request)
+        request.session['csrf_token'] = csrf_token
+        obj = Music.objects.get(author=request.user)
+        # sounds = [(obj.file1, obj.code1), (obj.file2, obj.code2), (obj.file3, obj.code3)]
+        sounds = [obj.file1, obj.file2, obj.file3]
+        random.shuffle(sounds)
+        print("SHUFFLE IS ", sounds)
+        context = {
+            'f1': sounds[0],
+            'f2': sounds[1],
+            'f3': sounds[2]
+        }
+        context_json = json.dumps(context, ensure_ascii=False)
+        print(context_json)
+        return render(request, 'main/verify.html', {'context_data': context_json, 'csrf_token': csrf_token})
+    
+    else:
+        messages.error(request, "Invalid request.")
         return redirect("home")
-    obj = Music.objects.get(author=request.user)
-    # sounds = [(obj.file1, obj.code1), (obj.file2, obj.code2), (obj.file3, obj.code3)]
-    sounds = [obj.file1, obj.file2, obj.file3]
-    random.shuffle(sounds)
-    print("SHUFFLE IS ", sounds)
-    context = {
-        'f1': sounds[0],
-        'f2': sounds[1],
-        'f3': sounds[2]
-    }
-    context_json = json.dumps(context, ensure_ascii=False)
-    print(context_json)
-    return render(request, 'main/verify.html', {'context_data': context_json})
 
     
