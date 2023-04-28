@@ -67,9 +67,6 @@ def sign_up(request):
             request.session["random"] = random
             request.session["x_value"] = x.isoformat()
             return redirect("/otp")      
-        else:
-            # print(user_form.errors)
-
     else:
         user_form = RegisterForm()
 
